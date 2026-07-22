@@ -2,6 +2,8 @@
 
 Implementaion of ICML2022 paper $\mathcal{G}$-Mixup: Graph Data Augmentation for Graph Classification [[arxiv]](https://arxiv.org/abs/2202.07179).
 
+The DrugOOD IC50 adaptation and its commands are documented in [`DrugOOD/README.md`](DrugOOD/README.md).
+
 ## 1. Introduction
 
 This work develops mixup for graph data. Mixup has shown superiority in improving the generalization and robustness of neural networks by interpolating features and labels between two random samples. Traditionally, Mixup can work on regular, grid-like, and Euclidean data such as image or tabular data. However, it is challenging to directly adopt Mixup to augment graph data because different graphs typically: 1) have different numbers of nodes; 2) are not readily aligned; and 3) have unique typologies in non-Euclidean space. To this end, we propose $\mathcal{G}$-Mixup to augment graphs for graph classification by interpolating the generator (i.e., graphon) of different classes of graphs. Specifically, we first use graphs within the same class to estimate a graphon. Then, instead of directly manipulating graphs, we interpolate graphons of different classes in the Euclidean space to get mixed graphons, where the synthetic graphs are generated through sampling based on the mixed graphons. Extensive experiments show that $\mathcal{G}$-Mixup substantially improves the generalization and robustness of GNNs.

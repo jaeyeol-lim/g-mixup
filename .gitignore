@@ -3,3 +3,7 @@ __pycache__
 .vscode
 src/__pycache__
 REDDIT-BINARY
+
+# DrugOOD IC50 experiment artifacts
+DrugOOD/outputs/
+DrugOOD/sweeps/
