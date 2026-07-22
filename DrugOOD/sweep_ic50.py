@@ -32,6 +32,7 @@ def main():
     parser.add_argument("--domains", nargs="+", choices=("assay", "scaffold", "size"), default=["assay"])
     parser.add_argument("--seeds", nargs="+", type=int, default=[1, 2, 3, 4])
     parser.add_argument("--subset", choices=("core", "general", "refined"), default="core")
+    parser.add_argument("--endpoint", choices=("ic50", "ec50"), default="ic50")
     parser.add_argument("--data-root", type=Path, default=None)
     parser.add_argument("--output-root", type=Path, default=Path(__file__).resolve().parent / "sweeps")
     parser.add_argument("--device", default="auto")
@@ -49,9 +50,9 @@ def main():
     script = Path(__file__).resolve().parent / "train_ic50.py"
     jobs = []
     for domain, seed, ratio in itertools.product(args.domains, args.seeds, args.augmented_ratios):
-        output_dir = args.output_root / domain / f"augmented_ratio_{value_name(ratio)}" / f"seed_{seed}"
+        output_dir = args.output_root / args.endpoint / domain / f"augmented_ratio_{value_name(ratio)}" / f"seed_{seed}"
         command = [
-            sys.executable, str(script), "--domain", domain, "--subset", args.subset,
+            sys.executable, str(script), "--domain", domain, "--subset", args.subset, "--endpoint", args.endpoint,
             "--seed", str(seed), "--augmented-ratio", str(ratio),
             "--device", args.device, "--output-dir", str(output_dir),
         ]
@@ -84,7 +85,7 @@ def main():
     for _, output_dir, domain, ratio in jobs:
         summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
         grouped.setdefault((domain, ratio), []).append(summary)
-    aggregate = {"method": "G-Mixup", "seeds": args.seeds, "groups": {}}
+    aggregate = {"method": "G-Mixup", "endpoint": args.endpoint, "seeds": args.seeds, "groups": {}}
     best = {}
     for (domain, ratio), summaries in sorted(grouped.items()):
         key = f"{domain}/augmented_ratio={ratio:g}"
@@ -99,7 +100,7 @@ def main():
         if mean is not None and (domain not in best or mean > best[domain][0]):
             best[domain] = (mean, key)
     aggregate["best_by_domain"] = {domain: key for domain, (_, key) in sorted(best.items())}
-    path = args.output_root / "aggregate.json"
+    path = args.output_root / args.endpoint / "aggregate.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(aggregate, indent=2), encoding="utf-8")
     print(f"aggregate={path}")
